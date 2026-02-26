@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <!--<meta name="viewport" content="height=device-height, initial-scale=0.5">-->
+    <title>解答之書</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                        serif: ['Noto Serif TC', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .perspective-1200 { perspective: 1200px; -webkit-perspective: 1200px; }
+        .preserve-3d { transform-style: preserve-3d; -webkit-transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        body {
+            margin: 0; padding: 0; min-height: 100vh;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: white;
+            display: flex; flex-direction: column; align-items: center;
+            padding-top: 2rem; padding-bottom: 3rem;
+            overflow-x: hidden;
+            background: radial-gradient(circle at center, #1a0f2e 0%, #05020a 100%);
+            background-attachment: fixed;
+        }
+
+        /* Magical floating particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(212, 175, 55, 0.15) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.4;
+            pointer-events: none;
+            animation: moveBackground 100s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 1000px; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        /* Book specific complex styles */
+        .book {
+            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform: rotateX(15deg) rotateY(-10deg);
+        }
+        .book.open {
+            transform: translateX(25%) rotateX(10deg) rotateY(0deg);
+        }
+
+        .page-flip {
+            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .book.open .page-flip {
+            transform: rotateY(-180deg);
+            box-shadow: -10px 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .cover-title-vertical {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+        }
+
+        /* Dynamic classes for JS */
+        .opacity-0 { opacity: 0; }
+        .opacity-100 { opacity: 1; }
+        .opacity-30 { opacity: 0.3; }
+        .opacity-5 { opacity: 0.05; }
+        .scale-90 { transform: scale(0.9); }
+        .scale-100 { transform: scale(1); }
+        .translate-y-0 { transform: translateY(0); }
+        .translate-y-6 { transform: translateY(1.5rem); }
+        .-translate-y-6 { transform: translateY(-1.5rem); }
+        .pointer-events-none { pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+        .drop-shadow-sm { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05)); }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="my-auto bg-[#0a0510]/80 backdrop-blur-xl border border-[#d4af37]/20 rounded-[40px] p-6 md:p-10 lg:p-12 w-[95%] max-w-[900px] shadow-[0_0_80px_rgba(0,0,0,0.8),inset_0_0_40px_rgba(212,175,55,0.05)] text-center flex flex-col items-center animate-[fadeIn_1.2s_ease-out] relative overflow-hidden shrink-0">
+        
+        <!-- Magical background accents inside card -->
+        <div class="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(212,175,55,0.08)_0%,transparent_60%)] animate-[spin_60s_linear_infinite] pointer-events-none"></div>
+        <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
+
+        <h1 class="font-serif font-bold text-4xl md:text-5xl lg:text-6xl m-0 mb-3 tracking-[8px] md:tracking-[12px] text-transparent bg-clip-text bg-gradient-to-b from-[#fff8e7] to-[#d4af37] drop-shadow-[0_4px_10px_rgba(212,175,55,0.3)] z-10">
+            解答之書
+        </h1>
+        <div class="text-xs md:text-sm lg:text-base text-[#d4af37]/60 mb-6 md:mb-10 tracking-[6px] md:tracking-[10px] font-serif z-10">THE GRIMOIRE OF ANSWERS</div>
+        
+        <!-- Glowing orb behind the book -->
+        <div id="glowing-orb" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] md:w-[400px] md:h-[400px] bg-[#d4af37] rounded-full blur-[100px] md:blur-[150px] transition-opacity duration-1000 pointer-events-none opacity-5"></div>
+
+        <!-- 3D Book Container -->
+        <div class="perspective-1200 w-[200px] h-[280px] md:w-[280px] md:h-[400px] lg:w-[320px] lg:h-[460px] my-6 md:my-10 mx-auto relative z-10">
+            <div id="book" class="book w-full h-full relative preserve-3d">
+                
+                <!-- RIGHT SIDE (Back Cover + Pages Stack + Answer Page) -->
+                <!-- Back Cover Thickness -->
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#1a0a02] border border-[#0a0410]" style="transform: translateZ(-21px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#1a0a02] border border-[#0a0410]" style="transform: translateZ(-22px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#1a0a02] border border-[#0a0410]" style="transform: translateZ(-23px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#1a0a02] border border-[#0a0410]" style="transform: translateZ(-24px)"></div>
+
+                <!-- Pages Thickness (The paper stack) -->
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-6px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-7px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-8px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-9px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-10px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-11px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-12px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-13px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-14px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-15px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-16px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-17px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-18px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-19px)"></div>
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#e8dcc4] border-y border-r border-[#d3c4a9] border-l-[8px] border-l-[#240f04]" style="transform: translateZ(-20px)"></div>
+
+                <!-- Answer Page (Top of the right stack) -->
+                <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#f4ecd8] border border-[#d3c4a9] border-l-[8px] border-l-[#240f04] shadow-[inset_4px_0_25px_rgba(139,115,85,0.4)] flex items-center justify-center overflow-hidden" style="transform: translateZ(-5px)">
+                    <div class="absolute inset-3 md:inset-5 border border-[#8b7355]/30 rounded-sm pointer-events-none"></div>
+                    <div class="absolute inset-4 md:inset-6 border border-[#8b7355]/10 rounded-sm pointer-events-none"></div>
+                    <div id="answer-text" class="font-serif font-bold text-[28px] md:text-[36px] lg:text-[44px] text-[#3e2723] text-center p-6 md:p-10 leading-relaxed transition-all duration-1000 delay-500 opacity-0 scale-90">
+                        <!-- Answer goes here -->
+                    </div>
+                </div>
+
+                <!-- LEFT SIDE (Flipping Cover) -->
+                <div class="page-flip absolute w-full h-full top-0 left-0 origin-left preserve-3d z-20">
+                    
+                    <!-- Front Cover -->
+                    <div class="page-front absolute w-full h-full top-0 left-0 backface-hidden rounded-r-xl bg-gradient-to-br from-[#3a1c0d] via-[#240f04] to-[#0f0500] border-l-[8px] border-[#1a0a02] flex items-center justify-center shadow-[inset_0_0_40px_rgba(0,0,0,0.8)] overflow-hidden" style="transform: translateZ(0px)">
+                        <!-- Leather Texture Overlay -->
+                        <div class="absolute inset-0 opacity-50 bg-[url('https://www.transparenttextures.com/patterns/black-leather.png')] pointer-events-none"></div>
+                        <!-- Stitching -->
+                        <div class="absolute inset-2 md:inset-3 border border-dashed border-[#8b5a2b]/40 rounded-sm rounded-r-lg pointer-events-none z-10"></div>
+                        
+                        <div class="w-full h-full relative flex items-center justify-center p-4 md:p-6 z-20">
+                            <!-- Outer Gold Border -->
+                            <div class="absolute inset-4 md:inset-6 border-2 border-[#d4af37]/40 rounded-sm rounded-r-lg shadow-[0_0_10px_rgba(212,175,55,0.1)] pointer-events-none"></div>
+                            
+                            <!-- Corner Ornaments -->
+                            <div class="absolute top-3 left-3 md:top-5 md:left-5 w-6 h-6 md:w-8 md:h-8 border-t-2 border-l-2 border-[#d4af37]/60"></div>
+                            <div class="absolute top-3 right-3 md:top-5 md:right-5 w-6 h-6 md:w-8 md:h-8 border-t-2 border-r-2 border-[#d4af37]/60"></div>
+                            <div class="absolute bottom-3 left-3 md:bottom-5 md:left-5 w-6 h-6 md:w-8 md:h-8 border-b-2 border-l-2 border-[#d4af37]/60"></div>
+                            <div class="absolute bottom-3 right-3 md:bottom-5 md:right-5 w-6 h-6 md:w-8 md:h-8 border-b-2 border-r-2 border-[#d4af37]/60"></div>
+
+                            <!-- Center Emblem -->
+                            <div class="relative flex flex-col items-center justify-center bg-[#1a0a02]/90 p-6 md:p-8 rounded-full border border-[#d4af37]/50 shadow-[0_0_30px_rgba(212,175,55,0.2)] backdrop-blur-md">
+                                <div class="absolute inset-2 border border-[#d4af37]/30 rounded-full border-dashed animate-[spin_20s_linear_infinite]"></div>
+                                <div class="font-serif font-bold text-[32px] md:text-[46px] lg:text-[54px] text-[#d4af37] cover-title-vertical tracking-[12px] md:tracking-[16px] drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]">
+                                    解答之書
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cover Thickness -->
+                    <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#240f04] border-l-[8px] border-[#1a0a02]" style="transform: translateZ(-1px)"></div>
+                    <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#240f04] border-l-[8px] border-[#1a0a02]" style="transform: translateZ(-2px)"></div>
+                    <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#240f04] border-l-[8px] border-[#1a0a02]" style="transform: translateZ(-3px)"></div>
+                    <div class="absolute w-full h-full top-0 left-0 rounded-r-xl bg-[#240f04] border-l-[8px] border-[#1a0a02]" style="transform: translateZ(-4px)"></div>
+
+                    <!-- Inside Left Page (Back of Cover) -->
+                    <div class="page-back absolute w-full h-full top-0 left-0 backface-hidden rounded-l-xl bg-[#f4ecd8] border border-[#d3c4a9] border-r-[8px] border-r-[#240f04] shadow-[inset_-4px_0_25px_rgba(139,115,85,0.4)] overflow-hidden" style="transform: rotateY(180deg) translateZ(5px)">
+                        <div class="absolute inset-3 md:inset-5 border border-[#8b7355]/30 rounded-sm pointer-events-none"></div>
+                        <div class="absolute inset-4 md:inset-6 border border-[#8b7355]/10 rounded-sm pointer-events-none"></div>
+                        <!-- Faint mystical symbol -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                            <div class="w-[150px] h-[150px] md:w-[250px] md:h-[250px] rounded-full border-[4px] border-[#3e2723] flex items-center justify-center">
+                                <div class="w-[100px] h-[100px] md:w-[180px] md:h-[180px] border-[2px] border-[#3e2723] rotate-45"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Area -->
+        <div class="relative w-full h-[140px] md:h-[160px] flex justify-center mt-4 md:mt-6 z-10 shrink-0">
+            <div id="start-controls" class="absolute top-0 w-full flex flex-col items-center transition-all duration-700 opacity-100 translate-y-0">
+                <p class="text-[15px] md:text-[18px] lg:text-[20px] leading-[1.8] text-[#e0dcd3] m-0 mb-6 font-serif tracking-[2px] md:tracking-[4px] text-shadow-sm">
+                    在心中默念一個問題，<br/>
+                    點擊下方按鈕，<br/>
+                    接受解答之書的指引。
+                </p>
+                <button id="start-btn" class="relative overflow-hidden group bg-gradient-to-br from-[#2a1b10] to-[#0a0502] border border-[#d4af37]/60 rounded-full py-3 px-12 md:py-4 md:px-16 text-lg md:text-xl text-[#d4af37] cursor-pointer font-sans font-medium tracking-[6px] shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-500 hover:scale-[1.05] hover:shadow-[0_0_40px_rgba(212,175,55,0.4)] hover:border-[#d4af37] active:scale-95 outline-none">
+                    <span class="relative z-10">開始占卜</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
+                </button>
+            </div>
+
+            <div id="reset-controls" class="absolute top-8 md:top-10 w-full flex justify-center transition-all duration-1000 opacity-0 -translate-y-6 pointer-events-none">
+                <button id="reset-btn" class="bg-black/50 backdrop-blur-md border border-[#d4af37]/40 rounded-full py-3 px-10 md:py-4 md:px-14 text-base md:text-lg text-[#d4af37] cursor-pointer font-sans font-medium tracking-[4px] transition-all duration-300 hover:bg-black/80 hover:border-[#d4af37] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] active:scale-95 outline-none">
+                    再問一次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ANSWERS = [
+            "是的", "現在不要行動", "再等等看", "事情會自然發展", 
+            "你已經知道答案", "可能，但需要努力", "時機未到", "放手會更好", 
+            "結果比你想的好", "謹慎行事", "值得一試", "不如改變方向", 
+            "順其自然", "會有轉機", "現在不是最佳時機", "你需要更多資訊", 
+            "相信直覺", "結果不如預期", "可以嘗試", "保持耐心", 
+            "答案在風中", "不要懷疑自己", "去問問別人", "接受現實",
+            "會有意想不到的收穫", "專注於當下", "這是個好主意", "再考慮一下",
+            "毫無疑問", "絕對不行"
+        ];
+
+        let lastIndex = -1;
+
+        const book = document.getElementById('book');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const startControls = document.getElementById('start-controls');
+        const resetControls = document.getElementById('reset-controls');
+        const answerText = document.getElementById('answer-text');
+        const glowingOrb = document.getElementById('glowing-orb');
+
+        function getRandomAnswer() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * ANSWERS.length);
+            } while (newIndex === lastIndex && ANSWERS.length > 1);
+            lastIndex = newIndex;
+            return ANSWERS[newIndex];
+        }
+
+        startBtn.addEventListener('click', () => {
+            // Hide start controls
+            startControls.classList.remove('opacity-100', 'translate-y-0');
+            startControls.classList.add('opacity-0', 'translate-y-6', 'pointer-events-none');
+            
+            // Set answer
+            answerText.textContent = getRandomAnswer();
+            
+            // Open book
+            setTimeout(() => {
+                book.classList.add('open');
+                glowingOrb.classList.remove('opacity-5');
+                glowingOrb.classList.add('opacity-30');
+                
+                // Show answer text
+                answerText.classList.remove('opacity-0', 'scale-90');
+                answerText.classList.add('opacity-100', 'scale-100', 'drop-shadow-sm');
+
+                // Show reset controls
+                setTimeout(() => {
+                    resetControls.classList.remove('opacity-0', '-translate-y-6', 'pointer-events-none');
+                    resetControls.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                }, 1000);
+            }, 200);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            // Hide reset controls
+            resetControls.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            resetControls.classList.add('opacity-0', '-translate-y-6', 'pointer-events-none');
+            
+            // Close book
+            book.classList.remove('open');
+            glowingOrb.classList.remove('opacity-30');
+            glowingOrb.classList.add('opacity-5');
+            
+            // Hide answer text
+            answerText.classList.remove('opacity-100', 'scale-100', 'drop-shadow-sm');
+            answerText.classList.add('opacity-0', 'scale-90');
+
+            // Show start controls after animation
+            setTimeout(() => {
+                startControls.classList.remove('opacity-0', 'translate-y-6', 'pointer-events-none');
+                startControls.classList.add('opacity-100', 'translate-y-0');
+                
+                setTimeout(() => {
+                    answerText.textContent = '';
+                }, 300);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+
